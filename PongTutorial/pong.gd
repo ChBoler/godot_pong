@@ -28,13 +28,11 @@ func _process(delta):
 	ball_pos += direction * ball_speed * delta
 	
 	# Collision detection for the top/bottom of screen
-	if((ball_pos.y < 0 and direction.y < 0) or 
-	(ball_pos.y > screen_size.y) and direction.y > 0):
+	if((ball_pos.y < 0 and direction.y < 0) or (ball_pos.y > screen_size.y) and direction.y > 0):
 		direction.y = -direction.y
 	
 	# Collision and acceleration for game pads
-	if((left_rect.has_point(ball_pos) and direction.x < 0) or
-	(right_rect.has_point(ball_pos) and direction.x > 0)):
+	if((left_rect.has_point(ball_pos) and direction.x < 0) or (right_rect.has_point(ball_pos) and direction.x > 0)):
 		direction.x = -direction.x
 		direction.y = randf() * 2.0 - 1
 		direction = direction.normalized()
@@ -50,9 +48,13 @@ func _process(delta):
 	var left_pos = get_node("LeftPad").get_pos()
 	
 	if(left_pos.y > 0 and Input.is_action_pressed("left_move_up")):
+		#print("RIGHTUP")
 		left_pos.y += -PAD_SPEED * delta
-	if(left_pos.y < screen_size.y and Input.is_action_pressed("left_move_up")):
+	if(left_pos.y < screen_size.y and Input.is_action_pressed("left_move_down")):
 		left_pos.y += PAD_SPEED * delta
+	
+	#'get_node' seems to only hold one node at a time?
+	get_node("LeftPad").set_pos(left_pos)
 	
 	# Right Pad movement logic
 	var right_pos = get_node("RightPad").get_pos()
@@ -61,3 +63,7 @@ func _process(delta):
 		right_pos.y += -PAD_SPEED * delta
 	if(right_pos.y < screen_size.y and Input.is_action_pressed("right_move_down")):
 		right_pos.y += PAD_SPEED * delta
+		
+	# Update positions
+	get_node("Ball").set_pos(ball_pos)
+	get_node("RightPad").set_pos(right_pos)
