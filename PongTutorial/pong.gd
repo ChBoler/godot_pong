@@ -14,6 +14,10 @@ var ball_speed = INITIAL_BALL_SPEED
 # Constant for pad speed
 const PAD_SPEED = 150
 
+# Amount the AI will be off from the center of the ball; random variable for
+# AI mistakes
+var AIVariance = 0
+
 func _ready():
 	screen_size = get_viewport_rect().size
 	pad_size = get_node("LeftPad").get_texture().get_size()
@@ -38,6 +42,11 @@ func _process(delta):
 		direction = direction.normalized()
 		ball_speed *= 1.1
 		
+		# Determine new AI mistake threshold when colliding with either pad
+		# More likely to miss as the ball speeds up, and direction to miss by is random.
+		randomize()
+		AIVariance = (randf() * 2.0 - 1) * (int(round(rand_range(0, 75)))) + (ball_speed - INITIAL_BALL_SPEED)
+		
 	# Check for out of bounds & reset ball if OOB
 	if(ball_pos.x < 0 or ball_pos.x > screen_size.x):
 		ball_pos = screen_size * .5
@@ -59,9 +68,17 @@ func _process(delta):
 	# Right Pad movement logic
 	var right_pos = get_node("RightPad").get_pos()
 	
-	if(right_pos.y > 0 and Input.is_action_pressed("right_move_up")):
+	# Simple AI implementation test for the right pad
+	var aiMoveDirection = "NONE"
+	
+	if(ball_pos.y > right_pos.y + AIVariance):
+		aiMoveDirection = "DOWN"
+	elif(ball_pos.y < right_pos.y + AIVariance):
+		aiMoveDirection = "UP"
+	
+	if(right_pos.y > 0 and aiMoveDirection == "UP"): #Input.is_action_pressed("right_move_up")):
 		right_pos.y += -PAD_SPEED * delta
-	if(right_pos.y < screen_size.y and Input.is_action_pressed("right_move_down")):
+	if(right_pos.y < screen_size.y and aiMoveDirection == "DOWN"): #Input.is_action_pressed("right_move_down")):
 		right_pos.y += PAD_SPEED * delta
 		
 	# Update positions
