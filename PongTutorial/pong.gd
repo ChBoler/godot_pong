@@ -56,14 +56,11 @@ func _process(delta):
 	# Left Pad movement logic
 	var left_pos = get_node("LeftPad").get_pos()
 	
-	if(left_pos.y > 0 and Input.is_action_pressed("left_move_up")):
+	if(left_pos.y > (left_rect.size.y / 2) and Input.is_action_pressed("left_move_up")):
 		#print("RIGHTUP")
 		left_pos.y += -PAD_SPEED * delta
-	if(left_pos.y < screen_size.y and Input.is_action_pressed("left_move_down")):
+	if(left_pos.y < screen_size.y - (left_rect.size.y / 2) and Input.is_action_pressed("left_move_down")):
 		left_pos.y += PAD_SPEED * delta
-	
-	#'get_node' seems to only hold one node at a time?
-	get_node("LeftPad").set_pos(left_pos)
 	
 	# Right Pad movement logic
 	var right_pos = get_node("RightPad").get_pos()
@@ -71,16 +68,41 @@ func _process(delta):
 	# Simple AI implementation test for the right pad
 	var aiMoveDirection = "NONE"
 	
-	if(ball_pos.y > right_pos.y + AIVariance):
+	if(ball_pos.y > right_pos.y):# + AIVariance):
 		aiMoveDirection = "DOWN"
-	elif(ball_pos.y < right_pos.y + AIVariance):
+	elif(ball_pos.y < right_pos.y):# + AIVariance):
 		aiMoveDirection = "UP"
 	
-	if(right_pos.y > 0 and aiMoveDirection == "UP"): #Input.is_action_pressed("right_move_up")):
-		right_pos.y += -PAD_SPEED * delta
-	if(right_pos.y < screen_size.y and aiMoveDirection == "DOWN"): #Input.is_action_pressed("right_move_down")):
-		right_pos.y += PAD_SPEED * delta
+	# Disable movement is ball is going towards player
+	if(direction.x > 0):
+		if(right_pos.y > (right_rect.size.y / 2) and aiMoveDirection == "UP"): #Input.is_action_pressed("right_move_up")):
+			if(right_pos.y - ball_pos.y < PAD_SPEED):
+				right_pos.y += -(right_pos.y - ball_pos.y)# * delta
+			else:
+				right_pos.y += -PAD_SPEED * delta
+				print("NormalSpeedUp")
+		if(right_pos.y < screen_size.y - (right_rect.size.y / 2) and aiMoveDirection == "DOWN"): #Input.is_action_pressed("right_move_down")):
+			if(ball_pos.y - right_pos.y < PAD_SPEED):
+				right_pos.y += ball_pos.y - right_pos.y# * delta
+			else:
+				right_pos.y += PAD_SPEED * delta
+				print("NormalSpeedDown")
+			
+	# AI for left pad
+#	if(left_pos.y > (left_rect.size.y / 2) and aiMoveDirection == "UP"): #Input.is_action_pressed("right_move_up")):
+#		if(left_pos.y - ball_pos.y < PAD_SPEED):
+#			left_pos.y += -(left_pos.y - ball_pos.y)# * delta
+#		else:
+#			left_pos.y += -PAD_SPEED * delta
+#			print("NormalSpeedUp")
+#	if(left_pos.y < screen_size.y - (left_rect.size.y / 2) and aiMoveDirection == "DOWN"): #Input.is_action_pressed("right_move_down")):
+#		if(ball_pos.y - left_pos.y < PAD_SPEED):
+#			left_pos.y += ball_pos.y - left_pos.y# * delta
+#		else:
+#			left_pos.y += PAD_SPEED# * delta
+#			print("NormalSpeedDown")
 		
 	# Update positions
 	get_node("Ball").set_pos(ball_pos)
 	get_node("RightPad").set_pos(right_pos)
+	get_node("LeftPad").set_pos(left_pos)
