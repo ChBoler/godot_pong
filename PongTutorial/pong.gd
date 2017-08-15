@@ -73,20 +73,20 @@ func _process(delta):
 	elif(ball_pos.y < right_pos.y):# + AIVariance):
 		aiMoveDirection = "UP"
 	
-	# Disable movement is ball is going towards player
-	if(direction.x > 0):
-		if(right_pos.y > (right_rect.size.y / 2) and aiMoveDirection == "UP"): #Input.is_action_pressed("right_move_up")):
-			if(right_pos.y - ball_pos.y < PAD_SPEED):
-				right_pos.y += -(right_pos.y - ball_pos.y)# * delta
-			else:
-				right_pos.y += -PAD_SPEED * delta
-				print("NormalSpeedUp")
-		if(right_pos.y < screen_size.y - (right_rect.size.y / 2) and aiMoveDirection == "DOWN"): #Input.is_action_pressed("right_move_down")):
-			if(ball_pos.y - right_pos.y < PAD_SPEED):
-				right_pos.y += ball_pos.y - right_pos.y# * delta
-			else:
-				right_pos.y += PAD_SPEED * delta
-				print("NormalSpeedDown")
+
+	if(right_pos.y > (right_rect.size.y / 2) and aiMoveDirection == "UP"): #Input.is_action_pressed("right_move_up")):
+		if(right_pos.y - ball_pos.y < PAD_SPEED * delta):
+			right_pos.y += -(right_pos.y - ball_pos.y) * delta
+		else:
+			right_pos.y += -PAD_SPEED * delta
+			print("NormalSpeedUp")
+	if(right_pos.y < screen_size.y - (right_rect.size.y / 2) and aiMoveDirection == "DOWN"): #Input.is_action_pressed("right_move_down")):
+		if(ball_pos.y - right_pos.y < PAD_SPEED * delta):
+			print(ball_pos.y - right_pos.y)
+			right_pos.y += ball_pos.y - right_pos.y# * delta
+		else:
+			right_pos.y += PAD_SPEED * delta
+			print("NormalSpeedDown")
 			
 	# AI for left pad
 #	if(left_pos.y > (left_rect.size.y / 2) and aiMoveDirection == "UP"): #Input.is_action_pressed("right_move_up")):
